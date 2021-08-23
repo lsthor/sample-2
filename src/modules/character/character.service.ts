@@ -7,20 +7,20 @@ import { CHARACTERS_KEY } from './constants';
 export class CharacterService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
-  async findAll(): Promise<Character[]> {
-    const cache = await this.cacheManager.get<CacheCharactersModel>(
-      CHARACTERS_KEY,
-    );
+  getCachedModel() {
+    return this.cacheManager.get<CacheCharactersModel>(CHARACTERS_KEY);
+  }
+
+  async listIds(): Promise<number[]> {
+    const cache = await this.getCachedModel();
     if (cache) {
-      return cache.characters;
+      return cache.characters.map((c) => c.id);
     }
     return [];
   }
 
   async findById(id: number): Promise<Character | undefined> {
-    const cache = await this.cacheManager.get<CacheCharactersModel>(
-      CHARACTERS_KEY,
-    );
+    const cache = await this.getCachedModel();
     if (cache) {
       return cache.characters.find((c) => c.id === id);
     }

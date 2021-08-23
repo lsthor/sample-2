@@ -33,7 +33,7 @@ export class CharacterTask {
         lastUpdated: new Date(),
       });
     } else {
-      this.logger.log('unable to retrieve characters for now');
+      this.logger.log('not refreshing characters in cache now');
     }
     return;
   }

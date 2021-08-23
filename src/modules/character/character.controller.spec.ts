@@ -29,7 +29,7 @@ describe('Character Controller', () => {
   });
 
   describe('getCharacters', () => {
-    it('should return characters', async () => {
+    it('should return characters id', async () => {
       getCache.mockImplementation(() => {
         return new Promise<CacheCharactersModel | undefined>((resolve) =>
           resolve({
@@ -42,7 +42,7 @@ describe('Character Controller', () => {
 
       const characters = await appController.getCharacters();
 
-      expect(characters).toBe(testCharacters);
+      expect(characters).toEqual(testCharacters.map((c) => c.id));
     });
 
     it('should return empty array if cache is empty', async () => {

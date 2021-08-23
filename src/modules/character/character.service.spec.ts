@@ -33,7 +33,7 @@ describe('Character Service', () => {
           resolve(undefined),
         );
       });
-      const characters = await characterService.findAll();
+      const characters = await characterService.listIds();
       expect(characters.length).toBe(0);
       expect(getCache).toBeCalledWith(CHARACTERS_KEY);
     });
@@ -48,10 +48,10 @@ describe('Character Service', () => {
           }),
         );
       });
-      const characters = await characterService.findAll();
+      const characters = await characterService.listIds();
 
       expect(characters.length).toBe(testCharacters.length);
-      expect(characters).toBe(testCharacters);
+      expect(characters).toEqual(testCharacters.map((c) => c.id));
     });
   });
 

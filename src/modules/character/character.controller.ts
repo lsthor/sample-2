@@ -20,8 +20,8 @@ export class CharacterController {
   constructor(private readonly characterService: CharacterService) {}
 
   @Get(['/', ''])
-  async getCharacters(): Promise<Character[]> {
-    return this.characterService.findAll();
+  async getCharacters(): Promise<number[]> {
+    return this.characterService.listIds();
   }
 
   @Get('/:id')
