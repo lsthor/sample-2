@@ -83,6 +83,7 @@ describe('Character Task', () => {
         etag: 'another-etag',
         characters,
       }),
+      { ttl: 0 },
     );
   });
 

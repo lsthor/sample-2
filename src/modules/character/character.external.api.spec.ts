@@ -65,6 +65,23 @@ describe('Character External API', () => {
       expect(response.characters).toBeUndefined();
     });
 
+    it('should return response with ok false if status code is 409', async () => {
+      mocked(fetch).mockImplementation(() =>
+        Promise.resolve({
+          ok: false,
+          status: 409,
+          json: () =>
+            Promise.resolve({
+              code: 409,
+              status: 'You may not request more than 100 items.',
+            }),
+        } as Response),
+      );
+      const response = await characterExternalApi.getCharacters('');
+      expect(response.ok).toBeFalsy();
+      expect(response.characters).toBeUndefined();
+    });
+
     it('should return response with ok and without characters if response status is 304', async () => {
       mocked(fetch).mockImplementation(() =>
         Promise.resolve({ ok: true, status: 304 } as Response),

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
 import fetch from 'node-fetch';
 import { Character, CharactersApiResponse } from './types';
@@ -46,33 +46,33 @@ export class CharacterExternalApi {
 
   async getCharacters(etag: string): Promise<CharactersApiResponse> {
     try {
-      const ts = new Date().getTime() as unknown as string;
+      const ts = new Date().getTime();
       const hash = this.toMd5(
         `${ts}${process.env.PRIVATE_KEY}${process.env.PUBLIC_KEY}`,
       );
       const apiKey = process.env.PUBLIC_KEY;
-      const url = `${process.env.API_DOMAIN}/v1/public/characters?limit=100&ts=${ts}&hash=${hash}&apikey=${apiKey}`;
+      const url = `${process.env.API_DOMAIN}/v1/public/characters?limit=101&ts=${ts}&hash=${hash}&apikey=${apiKey}`;
       const response = await fetch(url, {
         method: 'get',
         headers: { 'Content-Type': 'application/json', 'If-None-Match': etag },
       });
 
-      switch (response.status) {
-        case 200:
-          const responseJson = await response.json();
-          const etagInResponse = responseJson.etag;
-          const characters: Character[] = responseJson.data.results.map(
-            (result: any) => {
-              const { id, name, description } = result;
-              return { id, name, description };
-            },
-          );
-          return { ok: true, etag: etagInResponse, characters };
-        case 304:
-          this.logger.log('from cache');
-          return { ok: true, etag };
-        default:
-          return { ok: false };
+      if (response.status === HttpStatus.OK) {
+        const responseJson = await response.json();
+        const etagInResponse = responseJson.etag;
+        const characters: Character[] = responseJson.data.results.map(
+          (result: any) => {
+            const { id, name, description } = result;
+            return { id, name, description };
+          },
+        );
+        return { ok: true, etag: etagInResponse, characters };
+      } else if (response.status === HttpStatus.NOT_MODIFIED) {
+        return { ok: true, etag };
+      } else {
+        const responseJson = await response.json();
+        this.logger.error(responseJson.status);
+        return { ok: false };
       }
     } catch (error) {
       this.logger.log(`encountered error - ${error}`);

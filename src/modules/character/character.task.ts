@@ -27,11 +27,15 @@ export class CharacterTask {
       this.logger.log(
         'only update cached model if both etag and characters are defined',
       );
-      await this.cacheManager.set<CacheCharactersModel>(CHARACTERS_KEY, {
-        etag: response.etag,
-        characters: response.characters,
-        lastUpdated: new Date(),
-      });
+      await this.cacheManager.set<CacheCharactersModel>(
+        CHARACTERS_KEY,
+        {
+          etag: response.etag,
+          characters: response.characters,
+          lastUpdated: new Date(),
+        },
+        { ttl: 0 },
+      );
     } else {
       this.logger.log('not refreshing characters in cache now');
     }
