@@ -35,7 +35,7 @@ export class CharacterController {
       return;
     }
     const character = await this.characterService.findById(parseInt(id));
-    this.logger.log(character);
+
     if (!character) {
       res.status(HttpStatus.NOT_FOUND).send();
       return;
