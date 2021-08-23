@@ -1,20 +1,21 @@
-export interface Character {
+import { ApiProperty } from '@nestjs/swagger';
+
+export class Character {
+  @ApiProperty({ example: 12345, description: 'The Id of the character' })
   id: number;
+  @ApiProperty({ example: 'name', description: 'The name of the character' })
   name: string;
+  @ApiProperty({
+    example: 'description',
+    description: 'The description of the character',
+  })
   description: string;
 }
 
-export interface ApiResponse {
+export interface CharactersApiResponse {
   ok: boolean;
-}
-
-export interface CharactersApiResponse extends ApiResponse {
   characters?: Character[];
   etag?: string;
-}
-
-export interface CharacterApiResponse extends ApiResponse {
-  character?: Character;
 }
 
 export interface CacheCharactersModel {

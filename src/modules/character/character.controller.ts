@@ -11,7 +11,9 @@ import {
 import { CharacterService } from './character.service';
 import { Character } from './types';
 import { Response } from 'express';
+import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Characters')
 @Controller('characters')
 @UseInterceptors(ClassSerializerInterceptor)
 export class CharacterController {
@@ -20,11 +22,37 @@ export class CharacterController {
   constructor(private readonly characterService: CharacterService) {}
 
   @Get(['/', ''])
+  @ApiOperation({ summary: 'To retrieve a list of character Id' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of character id',
+    type: [Number],
+  })
   async getCharacters(): Promise<number[]> {
     return this.characterService.listIds();
   }
 
   @Get('/:id')
+  @ApiOperation({ summary: 'To retrieve a character by Id' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'id',
+    schema: { type: 'integer' },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Character',
+    type: Character,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid or missing id',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Character not found',
+  })
   async getCharacterById(
     @Res({ passthrough: true }) res: Response,
     @Param() params,
