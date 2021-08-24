@@ -33,7 +33,7 @@ describe('Character External API', () => {
             }),
         } as Response),
       );
-      const response = await characterExternalApi.getCharacters('');
+      const response = await characterExternalApi.getCharacters();
       expect(response.ok).toBeTruthy();
       expect(JSON.stringify(response.characters)).toBe(
         JSON.stringify(characters),
@@ -51,7 +51,7 @@ describe('Character External API', () => {
         } as Response),
       );
 
-      await expect(characterExternalApi.getCharacters('')).resolves.toEqual({
+      await expect(characterExternalApi.getCharacters()).resolves.toEqual({
         ok: false,
       });
     });
@@ -60,7 +60,7 @@ describe('Character External API', () => {
       mocked(fetch).mockImplementation(() =>
         Promise.resolve({ ok: false, status: 500 } as Response),
       );
-      const response = await characterExternalApi.getCharacters('');
+      const response = await characterExternalApi.getCharacters();
       expect(response.ok).toBeFalsy();
       expect(response.characters).toBeUndefined();
     });
@@ -77,7 +77,7 @@ describe('Character External API', () => {
             }),
         } as Response),
       );
-      const response = await characterExternalApi.getCharacters('');
+      const response = await characterExternalApi.getCharacters();
       expect(response.ok).toBeFalsy();
       expect(response.characters).toBeUndefined();
     });
@@ -86,7 +86,7 @@ describe('Character External API', () => {
       mocked(fetch).mockImplementation(() =>
         Promise.resolve({ ok: true, status: 304 } as Response),
       );
-      const response = await characterExternalApi.getCharacters('some-etag');
+      const response = await characterExternalApi.getCharacters();
       expect(response.ok).toBeTruthy();
       expect(response.characters).toBeUndefined();
     });

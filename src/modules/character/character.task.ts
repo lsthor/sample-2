@@ -20,17 +20,15 @@ export class CharacterTask {
       CHARACTERS_KEY,
     );
 
-    const etag = cachedCharacters ? cachedCharacters.etag : '';
-    this.logger.log(`querying api with etag ${etag}`);
-    const response = await this.characterExternalApi.getCharacters(etag);
-    if (response.ok && response.etag && response.characters) {
+    this.logger.log(`querying api`);
+    const response = await this.characterExternalApi.getCharacters();
+    if (response.ok && response.characters) {
       this.logger.log(
         'only update cached model if both etag and characters are defined',
       );
       await this.cacheManager.set<CacheCharactersModel>(
         CHARACTERS_KEY,
         {
-          etag: response.etag,
           characters: response.characters,
           lastUpdated: new Date(),
         },

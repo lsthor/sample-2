@@ -46,32 +46,30 @@ describe('Character Task', () => {
     const spy = jest.spyOn(characterExternalApi, 'getCharacters');
     await characterTask.populateCharacters();
     expect(spy).toBeCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith('');
   });
 
   it('should call api with etag if cache is not empty', async () => {
     getCache.mockImplementation(() => {
       return new Promise<CacheCharactersModel | undefined>((resolve) =>
-        resolve({ etag: '123456', characters, lastUpdated: new Date() }),
+        resolve({ characters, lastUpdated: new Date() }),
       );
     });
     const spy = jest.spyOn(characterExternalApi, 'getCharacters');
     await characterTask.populateCharacters();
 
     expect(spy).toBeCalledTimes(1);
-    expect(spy).toHaveBeenCalledWith('123456');
   });
 
-  it('should update cache if response is ok and contains both etag and characters', async () => {
+  it('should update cache if response is ok and contains characters', async () => {
     getCache.mockImplementation(() => {
       return new Promise<CacheCharactersModel | undefined>((resolve) =>
-        resolve({ etag: '123456', characters, lastUpdated: new Date() }),
+        resolve({ characters, lastUpdated: new Date() }),
       );
     });
     const spy = jest.spyOn(characterExternalApi, 'getCharacters');
     spy.mockImplementation(() => {
       return new Promise<CharactersApiResponse>((resolve) => {
-        resolve({ ok: true, etag: 'another-etag', characters });
+        resolve({ ok: true, characters });
       });
     });
     await characterTask.populateCharacters();
@@ -80,7 +78,6 @@ describe('Character Task', () => {
     expect(setCache).toBeCalledWith(
       CHARACTERS_KEY,
       expect.objectContaining({
-        etag: 'another-etag',
         characters,
       }),
       { ttl: 0 },
@@ -90,13 +87,13 @@ describe('Character Task', () => {
   it('should do nothing if response is ok but no characters', async () => {
     getCache.mockImplementation(() => {
       return new Promise<CacheCharactersModel | undefined>((resolve) =>
-        resolve({ etag: '123456', characters, lastUpdated: new Date() }),
+        resolve({ characters, lastUpdated: new Date() }),
       );
     });
     const spy = jest.spyOn(characterExternalApi, 'getCharacters');
     spy.mockImplementation(() => {
       return new Promise<CharactersApiResponse>((resolve) => {
-        resolve({ ok: true, etag: '123456' });
+        resolve({ ok: true });
       });
     });
     await characterTask.populateCharacters();
@@ -108,7 +105,7 @@ describe('Character Task', () => {
   it('should do nothing if response is ok but no characters', async () => {
     getCache.mockImplementation(() => {
       return new Promise<CacheCharactersModel | undefined>((resolve) =>
-        resolve({ etag: '123456', characters, lastUpdated: new Date() }),
+        resolve({ characters, lastUpdated: new Date() }),
       );
     });
     const spy = jest.spyOn(characterExternalApi, 'getCharacters');

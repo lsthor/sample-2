@@ -42,7 +42,6 @@ describe('Character Service', () => {
       getCache.mockImplementation(() => {
         return new Promise<CacheCharactersModel | undefined>((resolve) =>
           resolve({
-            etag: '123456',
             characters: testCharacters,
             lastUpdated: new Date(),
           }),
@@ -60,7 +59,6 @@ describe('Character Service', () => {
       getCache.mockImplementation(() => {
         return new Promise<CacheCharactersModel | undefined>((resolve) =>
           resolve({
-            etag: '123456',
             characters: [
               { id: 12345, name: 'test-hero', description: 'something' },
             ],
@@ -81,7 +79,6 @@ describe('Character Service', () => {
       getCache.mockImplementation(() => {
         return new Promise<CacheCharactersModel | undefined>((resolve) =>
           resolve({
-            etag: '123456',
             characters: [
               { id: 12345, name: 'test-hero', description: 'something' },
             ],

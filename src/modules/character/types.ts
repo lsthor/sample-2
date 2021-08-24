@@ -15,11 +15,9 @@ export class Character {
 export interface CharactersApiResponse {
   ok: boolean;
   characters?: Character[];
-  etag?: string;
 }
 
 export interface CacheCharactersModel {
-  etag: string;
   characters: Character[];
   lastUpdated: Date;
 }

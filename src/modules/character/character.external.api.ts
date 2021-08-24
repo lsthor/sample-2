@@ -44,7 +44,7 @@ export class CharacterExternalApi {
   //   }
   // }
 
-  async getCharacters(etag: string): Promise<CharactersApiResponse> {
+  async getCharacters(): Promise<CharactersApiResponse> {
     try {
       const ts = new Date().getTime();
       const hash = this.toMd5(
@@ -54,21 +54,21 @@ export class CharacterExternalApi {
       const url = `${process.env.API_DOMAIN}/v1/public/characters?limit=100&ts=${ts}&hash=${hash}&apikey=${apiKey}`;
       const response = await fetch(url, {
         method: 'get',
-        headers: { 'Content-Type': 'application/json', 'If-None-Match': etag },
+        headers: { 'Content-Type': 'application/json' },
       });
 
       if (response.status === HttpStatus.OK) {
         const responseJson = await response.json();
-        const etagInResponse = responseJson.etag;
+        // const etagInResponse = responseJson.etag;
         const characters: Character[] = responseJson.data.results.map(
           (result: any) => {
             const { id, name, description } = result;
             return { id, name, description };
           },
         );
-        return { ok: true, etag: etagInResponse, characters };
+        return { ok: true, characters };
       } else if (response.status === HttpStatus.NOT_MODIFIED) {
-        return { ok: true, etag };
+        return { ok: true };
       } else {
         const responseJson = await response.json();
         this.logger.error(responseJson.status);
