@@ -15,17 +15,11 @@ export class CharacterTask {
 
   async populateCharacters() {
     this.logger.log('start populating characters');
-    this.logger.log('load models from cached');
-    const cachedCharacters = await this.cacheManager.get<CacheCharactersModel>(
-      CHARACTERS_KEY,
-    );
 
     this.logger.log(`querying api`);
     const response = await this.characterExternalApi.getCharacters();
     if (response.ok && response.characters) {
-      this.logger.log(
-        'only update cached model if both etag and characters are defined',
-      );
+      this.logger.log('only update cached model if characters are defined');
       await this.cacheManager.set<CacheCharactersModel>(
         CHARACTERS_KEY,
         {

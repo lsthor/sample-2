@@ -1,7 +1,8 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import * as crypto from 'crypto';
-import fetch from 'node-fetch';
+import fetch, { Response } from 'node-fetch';
 import { Character, CharactersApiResponse } from './types';
+import { constructUrls, urlTemplate } from '../../util/url.helper';
 
 @Injectable()
 export class CharacterExternalApi {
@@ -44,29 +45,59 @@ export class CharacterExternalApi {
   //   }
   // }
 
+  fetchCharactersData(path: string): Promise<Response> {
+    const ts = new Date().getTime();
+    const hash = this.toMd5(
+      `${ts}${process.env.PRIVATE_KEY}${process.env.PUBLIC_KEY}`,
+    );
+    const apiKey = process.env.PUBLIC_KEY;
+    const url = `${process.env.API_DOMAIN}${path}&ts=${ts}&hash=${hash}&apikey=${apiKey}`;
+    return fetch(url, {
+      method: 'get',
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  toCharacter({ id, name, description }): Character {
+    return { id, name, description };
+  }
+
+  async fetchOtherCharactersFromOtherPage(total: number): Promise<Character[]> {
+    const urls = constructUrls(total);
+    if (urls.length > 1) {
+      // drop the first element because already fetched
+      const responses = await Promise.all(
+        urls.slice(1).map((u) => this.fetchCharactersData(u)),
+      );
+      const arr = [];
+      for (const response of responses) {
+        const responseJson = await response.json();
+
+        arr.push(responseJson.data.results.map(this.toCharacter));
+      }
+
+      return arr.flat() as Character[];
+    } else {
+      return [];
+    }
+  }
+
   async getCharacters(): Promise<CharactersApiResponse> {
     try {
-      const ts = new Date().getTime();
-      const hash = this.toMd5(
-        `${ts}${process.env.PRIVATE_KEY}${process.env.PUBLIC_KEY}`,
-      );
-      const apiKey = process.env.PUBLIC_KEY;
-      const url = `${process.env.API_DOMAIN}/v1/public/characters?limit=100&ts=${ts}&hash=${hash}&apikey=${apiKey}`;
-      const response = await fetch(url, {
-        method: 'get',
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const response = await this.fetchCharactersData(urlTemplate(100));
 
       if (response.status === HttpStatus.OK) {
         const responseJson = await response.json();
+
+        const otherCharacters = await this.fetchOtherCharactersFromOtherPage(
+          responseJson.data.total,
+        );
         // const etagInResponse = responseJson.etag;
         const characters: Character[] = responseJson.data.results.map(
-          (result: any) => {
-            const { id, name, description } = result;
-            return { id, name, description };
-          },
+          this.toCharacter,
         );
-        return { ok: true, characters };
+
+        return { ok: true, characters: [...characters, ...otherCharacters] };
       } else if (response.status === HttpStatus.NOT_MODIFIED) {
         return { ok: true };
       } else {

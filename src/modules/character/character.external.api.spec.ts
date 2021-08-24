@@ -2,7 +2,12 @@ import { CharacterExternalApi } from './character.external.api';
 import { mocked } from 'ts-jest/utils';
 import fetch, { Response } from 'node-fetch';
 import { Test, TestingModule } from '@nestjs/testing';
-import { testCharacters as characters } from '../../util/test.data';
+import {
+  dataPage1,
+  dataPage2,
+  dataPage3,
+  testCharacters as characters,
+} from '../../util/test.data';
 
 jest.mock('node-fetch');
 
@@ -28,6 +33,7 @@ describe('Character External API', () => {
             Promise.resolve({
               etag: '',
               data: {
+                total: characters.length,
                 results: characters,
               },
             }),
@@ -89,6 +95,39 @@ describe('Character External API', () => {
       const response = await characterExternalApi.getCharacters();
       expect(response.ok).toBeTruthy();
       expect(response.characters).toBeUndefined();
+    });
+
+    it('should retrieve subsequent paged data if total is more than 100', async () => {
+      mocked(fetch).mockImplementation((url) => {
+        console.log(url);
+        // first fetch
+        const getDataPage = (tempUrl) => {
+          if (
+            tempUrl
+              .toString()
+              .indexOf('/v1/public/characters?limit=100&offset=0') >= 0
+          ) {
+            return dataPage1;
+          } else if (
+            tempUrl
+              .toString()
+              .indexOf('/v1/public/characters?limit=100&offset=100') >= 0
+          ) {
+            return dataPage2;
+          } else {
+            return dataPage3;
+          }
+        };
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(getDataPage(url)),
+        } as Response);
+      });
+      const response = await characterExternalApi.getCharacters();
+      expect(response.ok).toBeTruthy();
+
+      expect(response.characters.length).toBe(dataPage1.data.total);
     });
   });
 });
