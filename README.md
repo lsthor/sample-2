@@ -1,3 +1,5 @@
+## PLEASE REFER TO README IN MASTER BRANCH
+
 ##README
 
 Instructions
