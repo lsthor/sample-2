@@ -51,7 +51,7 @@ export class CharacterExternalApi {
         `${ts}${process.env.PRIVATE_KEY}${process.env.PUBLIC_KEY}`,
       );
       const apiKey = process.env.PUBLIC_KEY;
-      const url = `${process.env.API_DOMAIN}/v1/public/characters?limit=101&ts=${ts}&hash=${hash}&apikey=${apiKey}`;
+      const url = `${process.env.API_DOMAIN}/v1/public/characters?limit=100&ts=${ts}&hash=${hash}&apikey=${apiKey}`;
       const response = await fetch(url, {
         method: 'get',
         headers: { 'Content-Type': 'application/json', 'If-None-Match': etag },
