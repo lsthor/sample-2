@@ -57,3 +57,9 @@ Cons
 - if first load failed, will be unable to serve data to client (first load can be fixed by replacing it with a persistent storage, like Redis or Database)
 - at the moment only loading the first 100, can be easily modified to load whole set of data but again, slow start up time
 - eventual consistency due to data is fetched periodically
+
+Implemetation 2
+You will find a slightly more improved implementation in `implementation-2` branch.
+The main differences are below
+- removed etag when fetching data from remote api
+- retrieve all characters based on total count in first fetch
